@@ -4,6 +4,7 @@ import requests
 import json
 import time
 import md5
+import psycopg2
 
 session_id = ''.join(random.choice('0123456789ABCDEF') for i in range(16))
 my_ip = '73.15.131.191'
@@ -62,7 +63,9 @@ for hotel in hotels:
                         "%f,%f,'%s',%d" % (hotel['highRate'],hotel['lowRate'],hotel['locationDescription'],hotel['confidenceRating']),
                         "'%s'" % (hotel['city']))) + ')')
 insert_statement = 'insert into sf_hotels values '+','.join(inserts)+';'
-print insert_statement
-
+conn = psycopg2.connect("dbname=expedia user=power_user password=q1w2e3")
+cursor = conn.cursor()
+cursor.execute(insert_statement)
+conn.commit()
 
 
