@@ -65,7 +65,9 @@ minor_rev = '4'
 # insert_statement = 'insert into sf_hotels values '+','.join(inserts)+';'
 conn = psycopg2.connect("dbname=expedia user=conor password=q1w2e3")
 cursor = conn.cursor()
-cursor.execute(insert_statement)
-conn.commit()
+sql = 'select * from sf_hotels;'
+cursor.execute(sql)
+cursor.fetchone()
+#conn.commit()
 
 
