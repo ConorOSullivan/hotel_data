@@ -48,24 +48,33 @@ class Request():
                     '</HotelListRequest>'))
 
                     
+def compose_insert(resp):
+    hotels = resp
+    inserts = []
+    for hotel in hotels:
+        inserts.append('('+','.join(("'%s','%s','%s',%f" % (hotel['name'],hotel['postalCode'],hotel['countryCode'],hotel['hotelRating']),
+                            "%f,%f,'%s',%d" % (hotel['highRate'],hotel['lowRate'],hotel['locationDescription'],hotel['confidenceRating']),
+                            "'%s'" % (hotel['city']))) + ')')
+    insert_statement = 'insert into sf_hotels values '+','.join(inserts)+';'
+    conn = psycopg2.connect("dbname=expedia user=power_user password=q1w2e3")
+    cursor = conn.cursor()
+    cursor.execute(insert_statement)
+    conn.commit()
 
-new_request = Request()
-new_request.compose_request('San Francisco','CA','US','07/04/2015','07/06/2015','3')
+def main():
+    new_request = Request()
+    new_request.compose_request('San Francisco','CA','US','07/04/2015','07/06/2015','3')
 
-response = requests.get(new_request.request_string)
-json_data = json.loads(response.content)
+    response = requests.get(new_request.request_string)
+    json_data = json.loads(response.content)
 
-hotels = json_data['HotelListResponse']['HotelList']['HotelSummary']
+    compose_insert(json_data['HotelListResponse']['HotelList']['HotelSummary'])
 
-inserts = []
-for hotel in hotels:
-    inserts.append('('+','.join(("'%s','%s','%s',%f" % (hotel['name'],hotel['postalCode'],hotel['countryCode'],hotel['hotelRating']),
-                        "%f,%f,'%s',%d" % (hotel['highRate'],hotel['lowRate'],hotel['locationDescription'],hotel['confidenceRating']),
-                        "'%s'" % (hotel['city']))) + ')')
-insert_statement = 'insert into sf_hotels values '+','.join(inserts)+';'
-conn = psycopg2.connect("dbname=expedia user=conor password=q1w2e3")
-cursor = conn.cursor()
-cursor.execute(insert_statement)
-conn.commit()
+
+    # while json_data['moreResultsAvailable'] = 'true':
+    #     cacheKey = json_data['cacheKey']
+    #     cacheLocation = json_data['cacheLocation']
+
+main()    
 
 
